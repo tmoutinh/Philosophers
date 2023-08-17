@@ -6,7 +6,7 @@
 /*   By: tmoutinh <tmoutinh@student.42porto.com     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/16 00:46:23 by tmoutinh          #+#    #+#             */
-/*   Updated: 2023/08/17 15:46:09 by tmoutinh         ###   ########.fr       */
+/*   Updated: 2023/08/17 18:16:35 by tmoutinh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,16 +46,23 @@ unsigned long long	ft_atoi(const char *nptr)
 	return (i * neg);
 }
 
-
+/*The right forks tells me the id of the philo*/
 void	*action(void *arg)
 {
-	t_philo	*data;
+	t_data	*data;
 
-	data = (t_philo*)arg;
-	printf("%lld philosopher %d is thinking", get_time(), data->right_fork);
-	
-	
-	
+	data = (t_data*)arg;
+	printf("%lld philosopher %d is thinking\n", get_time(), data->philo->right_fork);
+	printf("ok\n");
+	pthread_mutex_lock(&data->forks[data->philo->right_fork]);
+	pthread_mutex_lock(&data->forks[data->philo->left_fork]);
+	printf("%lld philosopher %d is eating\n", get_time(), data->philo->right_fork);
+	usleep(data->t_eat);
+	pthread_mutex_unlock(&data->forks[data->philo->right_fork]);
+	pthread_mutex_unlock(&data->forks[data->philo->left_fork]);
+	printf("%lld philosopher %d is sleeping\n", get_time(), data->philo->right_fork);
+	usleep(data->t_slp);
+	return (NULL);
 }
 
 int	init_data(char **argv, t_data *data)
@@ -70,14 +77,17 @@ int	init_data(char **argv, t_data *data)
 	return (1);
 }
 
-void	philo_init(t_philo *philo, int nb_philo)
+void	philo_init(t_philo *philo, t_data *data)
 {
 	int	i;
 
 	i = -1;
-	while (++i < nb_philo)
+	data->forks = (pthread_mutex_t *)malloc(sizeof(*data->forks) * data->nb_philo);
+	if (!data->forks)
+		return ;
+	while (++i < data->nb_philo)
 	{
-		if (i == nb_philo - 1)
+		if (i == data->nb_philo - 1)
 		{
 			philo[i].right_fork = i;
 			philo[i].left_fork = 0;	
@@ -85,7 +95,7 @@ void	philo_init(t_philo *philo, int nb_philo)
 		philo[i].right_fork = i;
 		philo[i].left_fork = i + 1;
 		philo[i].t_lasteat = get_time();
-		pthread_mutex_init(&philo[i].eat, NULL);
+		pthread_mutex_init(&data->forks[i], NULL);
 	}
 }
 
@@ -101,7 +111,7 @@ void	*someone_dead(void *arg)
 		if (i == data->nb_philo - 1)
 			i = -1;
 	}
-	printf("%lld philosopher %d has died", get_time(), i);
+	printf("%lld philosopher %d has died\n", get_time(), i);
 	return ((void *) -1); // Should return NULL?
 }
 
@@ -113,12 +123,12 @@ void	philosophers(t_data *data)
 
 	i = -1;
 	data->philo = philo;
-	philo_init(data->philo, data->nb_philo);
+	philo_init(data->philo, data);
 	pthread_create(&time_to_die, NULL, someone_dead, &data);
 	pthread_detach(time_to_die);
 	while (++i < data->nb_philo)
 	{
-		pthread_create(&(data->philo[i].philo), NULL, action, &data->philo[i]); // Not sure if the use of data->philo->philo is correct!
+		pthread_create(&(data->philo[i].philo), NULL, action, &data); // Not sure if the use of data->philo->philo is correct!
 	}
 	i = -1;
 	while (++i < data->nb_philo)
