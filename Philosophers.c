@@ -6,7 +6,7 @@
 /*   By: tmoutinh <tmoutinh@student.42porto.com     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/16 00:46:23 by tmoutinh          #+#    #+#             */
-/*   Updated: 2023/08/17 01:06:43 by tmoutinh         ###   ########.fr       */
+/*   Updated: 2023/08/17 13:16:41 by tmoutinh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,12 +86,21 @@ void	philo_init(t_philo *philo, int nb_philo)
 	}
 }
 
-void	someone_dead(void *arg)
+void	*someone_dead(void *arg)
 {
 	t_data	*data;
+	int		i;
 
 	data = (t_data*)arg;
-	
+	i = -1;
+	while (get_time() - data->philo[++i].t_lasteat < data->t_die)
+	{
+		if (i == data->nb_philo - 1)
+			i = -1;
+	}
+	printf("%ld philosopher %d has died", get_time(), i);
+	i = -1;
+	return ((void *)&i);
 }
 
 void	philosophers(t_data *data)
@@ -104,6 +113,7 @@ void	philosophers(t_data *data)
 	data->philo = &philo;
 	philo_init(data->philo, data->nb_philo);
 	pthread_create(&time_to_die, NULL, someone_dead, &data);
+	pthread_detach(time_to_die);
 	while (++i < data->nb_philo)
 	{
 		pthread_create(&(data->philo->philo), NULL, action, &data->philo); // Not sure if the use of data->philo->philo is correct!
