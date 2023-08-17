@@ -6,7 +6,7 @@
 /*   By: tmoutinh <tmoutinh@student.42porto.com     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/16 00:46:42 by tmoutinh          #+#    #+#             */
-/*   Updated: 2023/08/17 01:02:13 by tmoutinh         ###   ########.fr       */
+/*   Updated: 2023/08/17 15:42:05 by tmoutinh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,15 @@
 # include <stdio.h>
 # include <pthread.h>
 # include <sys/time.h>
+
+typedef struct s_philo
+{
+	pthread_t		philo;
+	int				right_fork;
+	int				left_fork;
+	long long int	t_lasteat;
+	pthread_mutex_t eat;
+}	t_philo;
 
 typedef struct s_data
 {
@@ -27,13 +36,5 @@ typedef struct s_data
 	t_philo				*philo;
 }	t_data;
 
-typedef struct s_philo
-{
-	pthread_t		philo;
-	int				right_fork;
-	int				left_fork;
-	long long int	t_lasteat;
-	pthread_mutex_t eat;
-}	t_philo;
 
 #endif

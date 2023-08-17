@@ -6,7 +6,7 @@
 /*   By: tmoutinh <tmoutinh@student.42porto.com     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/16 00:46:23 by tmoutinh          #+#    #+#             */
-/*   Updated: 2023/08/17 13:16:41 by tmoutinh         ###   ########.fr       */
+/*   Updated: 2023/08/17 15:46:09 by tmoutinh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,9 +49,11 @@ unsigned long long	ft_atoi(const char *nptr)
 
 void	*action(void *arg)
 {
-	t_data	*data;
+	t_philo	*data;
 
-	data = (t_data*)arg;
+	data = (t_philo*)arg;
+	printf("%lld philosopher %d is thinking", get_time(), data->right_fork);
+	
 	
 	
 }
@@ -83,6 +85,7 @@ void	philo_init(t_philo *philo, int nb_philo)
 		philo[i].right_fork = i;
 		philo[i].left_fork = i + 1;
 		philo[i].t_lasteat = get_time();
+		pthread_mutex_init(&philo[i].eat, NULL);
 	}
 }
 
@@ -98,9 +101,8 @@ void	*someone_dead(void *arg)
 		if (i == data->nb_philo - 1)
 			i = -1;
 	}
-	printf("%ld philosopher %d has died", get_time(), i);
-	i = -1;
-	return ((void *)&i);
+	printf("%lld philosopher %d has died", get_time(), i);
+	return ((void *) -1); // Should return NULL?
 }
 
 void	philosophers(t_data *data)
@@ -110,27 +112,26 @@ void	philosophers(t_data *data)
 	pthread_t	time_to_die;
 
 	i = -1;
-	data->philo = &philo;
+	data->philo = philo;
 	philo_init(data->philo, data->nb_philo);
 	pthread_create(&time_to_die, NULL, someone_dead, &data);
 	pthread_detach(time_to_die);
 	while (++i < data->nb_philo)
 	{
-		pthread_create(&(data->philo->philo), NULL, action, &data->philo); // Not sure if the use of data->philo->philo is correct!
+		pthread_create(&(data->philo[i].philo), NULL, action, &data->philo[i]); // Not sure if the use of data->philo->philo is correct!
 	}
 	i = -1;
 	while (++i < data->nb_philo)
 	{
-		pthread_join(data->philo->philo, NULL);
+		pthread_join(data->philo[i].philo, NULL);
 	}
-
 }
 
 int	main(int argc, char **argv)
 {
 	t_data	data;
 
-	if (argc < 5)
+	if (argc < 5 || argc > 6)
 		return (5);
 	if (init_data(argv, &data) == -1)
 		return (-1);
