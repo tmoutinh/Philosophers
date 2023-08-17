@@ -6,7 +6,7 @@
 /*   By: tmoutinh <tmoutinh@student.42porto.com     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/16 00:46:23 by tmoutinh          #+#    #+#             */
-/*   Updated: 2023/08/16 23:58:38 by tmoutinh         ###   ########.fr       */
+/*   Updated: 2023/08/17 01:06:43 by tmoutinh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,8 +62,8 @@ int	init_data(char **argv, t_data *data)
 	data->t_die = ft_atoi(argv[2]);
 	data->t_eat = ft_atoi(argv[3]);
 	data->t_slp = ft_atoi(argv[4]);
-	if (data->nb_philo < 0 || data->t_die < 0
-	|| data->t_eat < 0 || data->t_slp < 0)
+	if (data->nb_philo < 1 || data->t_die < 1
+	|| data->t_eat < 1 || data->t_slp < 1)
 		return (-1);
 	return (1);
 }
@@ -86,21 +86,32 @@ void	philo_init(t_philo *philo, int nb_philo)
 	}
 }
 
+void	someone_dead(void *arg)
+{
+	t_data	*data;
+
+	data = (t_data*)arg;
+	
+}
+
 void	philosophers(t_data *data)
 {
 	int	i;
 	t_philo philo[data->nb_philo];
+	pthread_t	time_to_die;
 
 	i = -1;
-	philo_init(&philo, data->nb_philo);
+	data->philo = &philo;
+	philo_init(data->philo, data->nb_philo);
+	pthread_create(&time_to_die, NULL, someone_dead, &data);
 	while (++i < data->nb_philo)
 	{
-		pthread_create(&(philo[i].philo), NULL, action, &philo);
+		pthread_create(&(data->philo->philo), NULL, action, &data->philo); // Not sure if the use of data->philo->philo is correct!
 	}
 	i = -1;
 	while (++i < data->nb_philo)
 	{
-		pthread_join(philo[i].philo, NULL);
+		pthread_join(data->philo->philo, NULL);
 	}
 
 }

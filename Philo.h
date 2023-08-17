@@ -6,7 +6,7 @@
 /*   By: tmoutinh <tmoutinh@student.42porto.com     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/16 00:46:42 by tmoutinh          #+#    #+#             */
-/*   Updated: 2023/08/16 23:50:41 by tmoutinh         ###   ########.fr       */
+/*   Updated: 2023/08/17 01:02:13 by tmoutinh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,8 @@ typedef struct s_data
 	unsigned long long	t_die;
 	unsigned long long	t_eat;
 	unsigned long long	t_slp;
-	int	start_time;
+	int					start_time;
+	t_philo				*philo;
 }	t_data;
 
 typedef struct s_philo
