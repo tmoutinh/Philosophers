@@ -6,45 +6,13 @@
 /*   By: tmoutinh <tmoutinh@student.42porto.com     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/16 00:46:23 by tmoutinh          #+#    #+#             */
-/*   Updated: 2023/08/18 12:31:34 by tmoutinh         ###   ########.fr       */
+/*   Updated: 2023/08/18 15:45:13 by tmoutinh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Philo.h"
 
-unsigned long long get_time(void) 
-{
-    struct timeval tv;
-	
-    gettimeofday(&tv, NULL);
-    return (unsigned long long)(tv.tv_sec) * 1000 + (unsigned long long)(tv.tv_usec) / 1000;
-}
 
-
-unsigned long long	ft_atoi(const char *nptr)
-{
-	unsigned long long	i;
-	int	neg;
-
-	i = 0;
-	neg = 1;
-	while (*nptr == 32 || (*nptr >= 9 && *nptr <= 13))
-		nptr++;
-	if (*nptr == '-' || *nptr == '+')
-	{
-		if (*nptr == '-')
-			neg *= (-1);
-		nptr++;
-	}
-	if (!(*nptr >= '0' && *nptr <= '9'))
-		return (-1);
-	while (*nptr >= '0' && *nptr <= '9')
-	{
-		i = i * 10 + (*nptr - 48);
-		nptr++;
-	}
-	return (i * neg);
-}
 
 /*The right forks tells me the id of the philo*/
 void	*action(void *arg)
@@ -57,42 +25,52 @@ void	*action(void *arg)
 	philo = (t_philo*)arg;
 	data = philo->data;
 	// long long int i;
-	// unsigned long long int j;	
+	// long long int j;	
 	// i = get_time();
 	// j = 200;
 	while (1)
 	{
-		printf("%lld %d is thinking\n", get_time() - data->start_time, philo->right_fork);
+		printf("%lld %d is thinking\n", get_time() - data->start_time, philo->right_fork + 1);
 		if (philo->right_fork % 2 == 0)
 		{
 			pthread_mutex_lock(&data->forks[philo->left_fork]);
+			printf("%lld %d has taken a fork\n", get_time() - data->start_time, philo->right_fork + 1);
 			pthread_mutex_lock(&data->forks[philo->right_fork]);
+			printf("%lld %d has taken a fork\n", get_time() - data->start_time, philo->right_fork + 1);
 		}
 		else
 		{
 			pthread_mutex_lock(&data->forks[philo->right_fork]);
+			printf("%lld %d has taken a fork\n", get_time() - data->start_time, philo->right_fork + 1);
 			pthread_mutex_lock(&data->forks[philo->left_fork]);
+			printf("%lld %d has taken a fork\n", get_time() - data->start_time, philo->right_fork + 1);
 		}
-		printf("%lld %d is eating\n", get_time() - data->start_time, philo->right_fork);
+		printf("%lld %d is eating\n", get_time() - data->start_time, philo->right_fork + 1);
 		philo->t_lasteat = get_time();
+		philo->eaten_nb += 1;
 		usleep(data->t_eat);
 		pthread_mutex_unlock(&data->forks[philo->right_fork]);
 		pthread_mutex_unlock(&data->forks[philo->left_fork]);
-		printf("%lld %d is sleeping\n", get_time() - data->start_time, philo->right_fork);
+		printf("%lld %d is sleeping\n", get_time() - data->start_time, philo->right_fork + 1);
 		usleep(data->t_slp);
 	}
 	return (NULL);
 }
 
-int	init_data(char **argv, t_data *data)
+int	init_data(int argc, char **argv, t_data *data)
 {
 	data->nb_philo = ft_atoi(argv[1]);
 	data->t_die = ft_atoi(argv[2]);
 	data->t_eat = ft_atoi(argv[3]);
 	data->t_slp = ft_atoi(argv[4]);
 	data->start_time = get_time();
+	if (argc == 6)
+		data->nb_eats = ft_atoi(argv[5]);
+	else
+		data->nb_eats = -1;
 	if (data->nb_philo < 1 || data->t_die < 1
-	|| data->t_eat < 1 || data->t_slp < 1)
+	|| data->t_eat < 1 || data->t_slp < 1 ||
+	 (argc == 6 && data->nb_eats < 1))
 		return (-1);
 	data->philo = (t_philo *)malloc(sizeof(t_philo) * data->nb_philo);
 	data->forks = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t) * data->nb_philo);
@@ -119,12 +97,13 @@ void	philo_init(t_data *data)
 			data->philo[i].left_fork = i + 1;	
 		}
 		data->philo[i].t_lasteat = get_time();
+		data->philo[i].eaten_nb = 0;
 		pthread_mutex_init(&data->forks[i], NULL);
 		data->philo[i].data = data;
 	}
 }
 
-void	*someone_dead(void *arg)
+void	*someone_dead_or_full(void *arg)
 {
 	t_data	*data;
 	int		i;
@@ -133,9 +112,9 @@ void	*someone_dead(void *arg)
 	i = -1;
 	while (1)
 	{
-		if (get_time() - data->philo[++i].t_lasteat > data->t_die)
+		if (get_time() - data->philo[++i].t_lasteat >= data->t_die)
 		{
-			printf("%lld %d died\n", get_time() - data->start_time, i);		
+			printf("%lld %d died\n", get_time() - data->start_time, i + 1);		
 			exit(EXIT_FAILURE);
 		}
 		if (i == data->nb_philo - 1)
@@ -151,7 +130,7 @@ void	philosophers(t_data *data)
 
 	i = -1;
 	philo_init(data);
-	pthread_create(&time_to_die, NULL, someone_dead, data);
+	pthread_create(&time_to_die, NULL, someone_dead_or_full, data);
 	pthread_detach(time_to_die);
 	while (++i < data->nb_philo)
 	{		
@@ -173,9 +152,15 @@ int	main(int argc, char **argv)
 	t_data	data;
 
 	if (argc < 5 || argc > 6)
+	{
+		write(STDERR_FILENO, "Invalid number of arguments\n", 28);
 		return (5);
-	if (init_data(argv, &data) == -1)
+	}
+	if (init_data(argc, argv, &data) < 1)
+	{
+		write(STDERR_FILENO, "Invalid argument introduction\n", 30);
 		return (-1);
+	}	
 	philosophers(&data);
 	return (0);
 }
