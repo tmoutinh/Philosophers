@@ -6,7 +6,7 @@
 /*   By: tmoutinh <tmoutinh@student.42porto.com     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/16 00:46:23 by tmoutinh          #+#    #+#             */
-/*   Updated: 2023/08/18 01:51:53 by tmoutinh         ###   ########.fr       */
+/*   Updated: 2023/08/18 12:31:34 by tmoutinh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,11 +56,11 @@ void	*action(void *arg)
 
 	philo = (t_philo*)arg;
 	data = philo->data;
-	long long int i;
-	unsigned long long int j;	
-	i = get_time();
-	j = 200;
-	while ((get_time() - i) < j)
+	// long long int i;
+	// unsigned long long int j;	
+	// i = get_time();
+	// j = 200;
+	while (1)
 	{
 		printf("%lld %d is thinking\n", get_time() - data->start_time, philo->right_fork);
 		if (philo->right_fork % 2 == 0)
@@ -74,7 +74,7 @@ void	*action(void *arg)
 			pthread_mutex_lock(&data->forks[philo->left_fork]);
 		}
 		printf("%lld %d is eating\n", get_time() - data->start_time, philo->right_fork);
-		philo->t_lasteat = get_time() - data->start_time;
+		philo->t_lasteat = get_time();
 		usleep(data->t_eat);
 		pthread_mutex_unlock(&data->forks[philo->right_fork]);
 		pthread_mutex_unlock(&data->forks[philo->left_fork]);
@@ -118,7 +118,7 @@ void	philo_init(t_data *data)
 			data->philo[i].right_fork = i;
 			data->philo[i].left_fork = i + 1;	
 		}
-		data->philo[i].t_lasteat = get_time() - data->start_time;
+		data->philo[i].t_lasteat = get_time();
 		pthread_mutex_init(&data->forks[i], NULL);
 		data->philo[i].data = data;
 	}
@@ -131,13 +131,17 @@ void	*someone_dead(void *arg)
 
 	data = (t_data*)arg;
 	i = -1;
-	while (get_time() - data->philo[++i].t_lasteat < data->t_die)
+	while (1)
 	{
+		if (get_time() - data->philo[++i].t_lasteat > data->t_die)
+		{
+			printf("%lld %d died\n", get_time() - data->start_time, i);		
+			exit(EXIT_FAILURE);
+		}
 		if (i == data->nb_philo - 1)
 			i = -1;
 	}
-	printf("%lld %d died\n", get_time() - data->start_time, i);
-	exit(EXIT_FAILURE);
+	return (NULL);
 }
 
 void	philosophers(t_data *data)
@@ -147,7 +151,7 @@ void	philosophers(t_data *data)
 
 	i = -1;
 	philo_init(data);
-	pthread_create(&time_to_die, NULL, someone_dead, &data);
+	pthread_create(&time_to_die, NULL, someone_dead, data);
 	pthread_detach(time_to_die);
 	while (++i < data->nb_philo)
 	{		
@@ -159,6 +163,7 @@ void	philosophers(t_data *data)
 		pthread_join(data->philo[i].philo, NULL);
 	}
 	i = -1;
+	pthread_exit(&time_to_die);
 	while (++i < data->nb_philo)
 		pthread_mutex_destroy(&data->forks[i]);
 }
