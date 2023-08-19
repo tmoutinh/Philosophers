@@ -6,7 +6,7 @@
 /*   By: tmoutinh <tmoutinh@student.42porto.com     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/16 00:46:23 by tmoutinh          #+#    #+#             */
-/*   Updated: 2023/08/18 15:45:13 by tmoutinh         ###   ########.fr       */
+/*   Updated: 2023/08/19 02:19:04 by tmoutinh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,42 +17,51 @@
 /*The right forks tells me the id of the philo*/
 void	*action(void *arg)
 {
-//	printf("i am working ok %d\n", ((t_philo*)arg)->right_fork);
-//	sleep(2);
+	// printf("i am working ok %d\n", ((t_philo*)arg)->right_fork);
+	// sleep(2);
 	t_data	*data;
 	t_philo	*philo;
 
 	philo = (t_philo*)arg;
 	data = philo->data;
-	// long long int i;
-	// long long int j;	
-	// i = get_time();
-	// j = 200;
 	while (1)
 	{
+		//pthread_mutex_lock(data->meal);
+		pthread_mutex_lock(data->write);
 		printf("%lld %d is thinking\n", get_time() - data->start_time, philo->right_fork + 1);
+		pthread_mutex_unlock(data->write);
 		if (philo->right_fork % 2 == 0)
 		{
 			pthread_mutex_lock(&data->forks[philo->left_fork]);
+			pthread_mutex_lock(data->write);
 			printf("%lld %d has taken a fork\n", get_time() - data->start_time, philo->right_fork + 1);
+			pthread_mutex_unlock(data->write);
 			pthread_mutex_lock(&data->forks[philo->right_fork]);
+			pthread_mutex_lock(data->write);
 			printf("%lld %d has taken a fork\n", get_time() - data->start_time, philo->right_fork + 1);
 		}
 		else
 		{
 			pthread_mutex_lock(&data->forks[philo->right_fork]);
+			pthread_mutex_lock(data->write);
 			printf("%lld %d has taken a fork\n", get_time() - data->start_time, philo->right_fork + 1);
+			pthread_mutex_unlock(data->write);
 			pthread_mutex_lock(&data->forks[philo->left_fork]);
+			pthread_mutex_lock(data->write);	
 			printf("%lld %d has taken a fork\n", get_time() - data->start_time, philo->right_fork + 1);
 		}
 		printf("%lld %d is eating\n", get_time() - data->start_time, philo->right_fork + 1);
+		pthread_mutex_unlock(data->write);
 		philo->t_lasteat = get_time();
 		philo->eaten_nb += 1;
-		usleep(data->t_eat);
-		pthread_mutex_unlock(&data->forks[philo->right_fork]);
+		usleep(data->t_eat * 1000);
+		//pthread_mutex_unlock(data->meal);
 		pthread_mutex_unlock(&data->forks[philo->left_fork]);
+		pthread_mutex_unlock(&data->forks[philo->right_fork]);
+		pthread_mutex_lock(data->write);
 		printf("%lld %d is sleeping\n", get_time() - data->start_time, philo->right_fork + 1);
-		usleep(data->t_slp);
+		pthread_mutex_unlock(data->write);
+		usleep(data->t_slp * 1000);
 	}
 	return (NULL);
 }
@@ -74,7 +83,9 @@ int	init_data(int argc, char **argv, t_data *data)
 		return (-1);
 	data->philo = (t_philo *)malloc(sizeof(t_philo) * data->nb_philo);
 	data->forks = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t) * data->nb_philo);
-	if (!data->forks || !data->philo)
+	data->meal = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t));
+	data->write = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t));
+	if (!data->forks || !data->philo || !data->meal || !data->write)
 		return (-2);
 	return (1);
 }
@@ -107,18 +118,42 @@ void	*someone_dead_or_full(void *arg)
 {
 	t_data	*data;
 	int		i;
+	int		j;
 
 	data = (t_data*)arg;
-	i = -1;
+	i = 0;
 	while (1)
 	{
-		if (get_time() - data->philo[++i].t_lasteat >= data->t_die)
+		pthread_mutex_lock(data->meal);
+		pthread_mutex_lock(data->write);
+		if (get_time() - data->philo[i].t_lasteat >= data->t_die)
 		{
 			printf("%lld %d died\n", get_time() - data->start_time, i + 1);		
-			exit(EXIT_FAILURE);
+			//pthread_mutex_unlock(data->write);
+			return (NULL);
+			//exit(EXIT_FAILURE);// switch for destroys
+		}
+		j = 0;
+		while (j <= data->nb_philo)
+		{
+			if (data->philo[j].eaten_nb >= data->nb_eats)
+				j++;
+			else
+				break;
+		}
+		if (j == data->nb_philo - 1)
+		{
+			//pthread_mutex_lock(data->write);
+			printf("%lld philosophers are full\n", get_time() - data->start_time);
+			//pthread_mutex_unlock(data->write);
+			return (NULL);
+			//exit(EXIT_FAILURE);// switch for destroys
 		}
 		if (i == data->nb_philo - 1)
 			i = -1;
+		i++;
+		pthread_mutex_unlock(data->write);
+		pthread_mutex_unlock(data->meal);
 	}
 	return (NULL);
 }

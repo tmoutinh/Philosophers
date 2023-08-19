@@ -6,7 +6,7 @@
 /*   By: tmoutinh <tmoutinh@student.42porto.com     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/16 00:46:42 by tmoutinh          #+#    #+#             */
-/*   Updated: 2023/08/18 15:07:45 by tmoutinh         ###   ########.fr       */
+/*   Updated: 2023/08/19 01:42:37 by tmoutinh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,8 @@ typedef struct s_data
 	long long	start_time;
 	t_philo				*philo;
 	pthread_mutex_t 	*forks;
+	pthread_mutex_t 	*meal;
+	pthread_mutex_t		*write;
 }	t_data;
 
 
