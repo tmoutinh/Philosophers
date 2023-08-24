@@ -6,7 +6,7 @@
 /*   By: tmoutinh <tmoutinh@student.42porto.com     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/16 00:46:42 by tmoutinh          #+#    #+#             */
-/*   Updated: 2023/08/22 00:29:08 by tmoutinh         ###   ########.fr       */
+/*   Updated: 2023/08/24 18:02:52 by tmoutinh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ typedef struct s_philo
 
 typedef struct s_data
 {
-	int	nb_philo;
+	int			nb_philo;
 	long long	t_die;
 	long long	t_eat;
 	long long	t_slp;

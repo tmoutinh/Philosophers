@@ -6,7 +6,7 @@
 /*   By: tmoutinh <tmoutinh@student.42porto.com     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/16 00:46:23 by tmoutinh          #+#    #+#             */
-/*   Updated: 2023/08/22 01:24:39 by tmoutinh         ###   ########.fr       */
+/*   Updated: 2023/08/24 18:13:00 by tmoutinh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,7 +90,7 @@ void	print_action(t_philo *arg, char *status)
 	pthread_mutex_unlock(data->write);
 }
 
-void	meal(t_philo *arg)
+void	meal(void *arg)
 {
 	t_data	*data;
 	t_philo	*philo;
@@ -118,6 +118,25 @@ void	meal(t_philo *arg)
 	pthread_mutex_unlock(data->meal);
 }
 
+void	execute(void *arg)
+{
+	t_data	*data;
+	t_philo	*philo;
+
+	philo = (t_philo*)arg;
+	data = philo->data;
+
+	meal(arg);
+	pthread_mutex_unlock(&data->forks[philo->left_fork]);
+	pthread_mutex_unlock(&data->forks[philo->right_fork]);
+	if (philo->eaten_nb < data->nb_eats)
+	{
+		print_action(philo, SLEEP);
+		usleep(data->t_slp * 1000);
+		print_action(philo, THINK);
+	}
+}
+
 void	*action(void *arg)
 {
 	t_data	*data;
@@ -125,48 +144,50 @@ void	*action(void *arg)
 
 	philo = (t_philo*)arg;
 	data = philo->data;
-	while (1)
+	if  (data->nb_eats > 0)
 	{
-		if (data->rip_flag == 0)
-			return (NULL);
-		print_action(arg, THINK);
-		meal(arg);
-		pthread_mutex_unlock(&data->forks[philo->left_fork]);
-		pthread_mutex_unlock(&data->forks[philo->right_fork]);
-		print_action(arg, SLEEP);
-		usleep(data->t_slp * 1000);
+		//inspect(arg);
+		while (philo->eaten_nb <= data->nb_eats
+			&& data->rip_flag == 1)
+			execute(arg);
+	}
+	else
+	{
+		//inspect(arg);
+		while (data->rip_flag == 1)
+			execute(arg);
 	}
 	return (NULL);
 }
 
-int	inspect (void	*arg)
+// int	inspect(void	*arg)
+// {
+// 	t_data	*data;
+// 	t_philo	*philo;
+
+// 	philo = (t_philo*)arg;
+// 	data = philo->data;
+// 	pthread_mutex_lock(data->finish);
+// 	pthread_mutex_lock(data->meal);
+// 	if (get_time() - philo->t_lasteat >= data->t_die)
+// 	{
+// 		data->rip_flag = 0;
+// 		print_action(philo, DIE);
+// 		pthread_mutex_unlock(data->finish);
+// 		pthread_mutex_unlock(data->meal);
+// 		return (0);
+// 	}
+// 	pthread_mutex_unlock(data->finish);
+// 	pthread_mutex_unlock(data->meal);
+// 	return (1);
+// }
+
+void	inspect(void	*arg)
 {
 	int	i;
-	t_data	*data;
 
-	data = arg;
-	//pthread_mutex_lock(data->finish);
-	while (data->rip_flag == 1)
-	{
-		i = -1;
-		while (++i < data->nb_philo)
-		{
-			//pthread_mutex_lock(data->meal);
-			if (get_time() - data->philo[i].t_lasteat >= data->t_die)
-			{
-				data->rip_flag = 0;
-				print_action(&data->philo[i], DIE);
-			//	pthread_mutex_unlock(data->finish);
-			//	pthread_mutex_unlock(data->meal);	
-				return (0);
-			}
-			//pthread_mutex_unlock(data->meal);	
-		}
-		usleep(10);
-	}
-	//pthread_mutex_unlock(data->finish);
-	finisher(data);
-	return (1);
+	i = 0;
+	if ()
 }
 
 void	philosophers(t_data *data)
@@ -179,8 +200,7 @@ void	philosophers(t_data *data)
 	{		
 		pthread_create(&(data->philo[i].philo), NULL, action, &data->philo[i]); // Not sure if the use of data->philo->philo is correct!
 	}
-	inspect(data);
-
+	finisher(data);
 }
 
 int	main(int argc, char **argv)
