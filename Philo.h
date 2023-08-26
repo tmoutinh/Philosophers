@@ -6,7 +6,7 @@
 /*   By: tmoutinh <tmoutinh@student.42porto.com     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/16 00:46:42 by tmoutinh          #+#    #+#             */
-/*   Updated: 2023/08/24 18:02:52 by tmoutinh         ###   ########.fr       */
+/*   Updated: 2023/08/24 19:34:33 by tmoutinh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,7 @@ typedef struct s_data
 	int			nb_eats;
 	long long	start_time;
 	int			rip_flag;
-	int			full_flag;
+	pthread_t			watcher;
 	t_philo				*philo;
 	pthread_mutex_t 	*forks;
 	pthread_mutex_t 	*meal;
@@ -56,6 +56,7 @@ typedef struct s_data
 long long get_time(void);
 long long	ft_atoi(const char *nptr);
 void	finisher(t_data *data);
-int	inspect (void *arg);
+//int	inspect (void *arg);
+void	*inspect(void *arg);
 
 #endif

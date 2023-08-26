@@ -1,3 +1,37 @@
+// int	inspect(void	*arg)
+// {
+// 	t_data	*data;
+// 	t_philo	*philo;
+
+// 	philo = (t_philo*)arg;
+// 	data = philo->data;
+// 	pthread_mutex_lock(data->finish);
+// 	pthread_mutex_lock(data->meal);
+// 	if (get_time() - philo->t_lasteat >= data->t_die)
+// 	{
+// 		data->rip_flag = 0;
+// 		print_action(philo, DIE);
+// 		pthread_mutex_unlock(data->finish);
+// 		pthread_mutex_unlock(data->meal);
+// 		return (0);
+// 	}
+// 	pthread_mutex_unlock(data->finish);
+// 	pthread_mutex_unlock(data->meal);
+// 	return (1);
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+
 // /*The right forks tells me the id of the philo*/
 // void	*action(void *arg)
 // {
