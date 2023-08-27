@@ -6,7 +6,7 @@
 /*   By: tmoutinh <tmoutinh@student.42porto.com     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/16 00:46:23 by tmoutinh          #+#    #+#             */
-/*   Updated: 2023/08/26 23:40:42 by tmoutinh         ###   ########.fr       */
+/*   Updated: 2023/08/27 22:12:09 by tmoutinh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,7 +85,6 @@ void	print_action(t_philo *arg, char *status)
 
 	philo = (t_philo*)arg;
 	data = philo->data;
-	
 	pthread_mutex_lock(data->write);
 	printf("%lld %d %s\n", get_time() - data->start_time, philo->right_fork + 1, status);
 	pthread_mutex_unlock(data->write);
@@ -109,10 +108,13 @@ void	meal(void *arg)
 		pthread_mutex_lock(&data->forks[philo->right_fork]);
 		pthread_mutex_lock(&data->forks[philo->left_fork]);
 	}
+	if (data->rip_flag == 1)
+	{
 	print_action(arg, TAKE);
 	print_action(arg, TAKE);
 	print_action(arg, EAT);
 	usleep(data->t_eat * 1000);
+	}
 	pthread_mutex_lock(data->meal);
 	pthread_mutex_lock(data->finish);
 	philo->eaten_nb += 1;
@@ -129,15 +131,18 @@ void	execute(void *arg)
 	philo = (t_philo*)arg;
 	data = philo->data;
 
+	if (data->rip_flag == 1)
+	{
 	pthread_mutex_unlock(data->finish);
 	meal(arg);
 	pthread_mutex_unlock(&data->forks[philo->left_fork]);
 	pthread_mutex_unlock(&data->forks[philo->right_fork]);
-	if (philo->eaten_nb < data->nb_eats)
+	if (philo->eaten_nb < data->nb_eats && data->rip_flag == 1)
 	{
 		print_action(philo, SLEEP);
 		usleep(data->t_slp * 1000);
 		print_action(philo, THINK);
+	}	
 	}
 }
 
