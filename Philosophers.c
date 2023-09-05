@@ -6,7 +6,7 @@
 /*   By: tmoutinh <tmoutinh@student.42porto.com     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/16 00:46:23 by tmoutinh          #+#    #+#             */
-/*   Updated: 2023/08/27 22:12:09 by tmoutinh         ###   ########.fr       */
+/*   Updated: 2023/09/04 21:49:18 by tmoutinh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,12 +115,10 @@ void	meal(void *arg)
 	print_action(arg, EAT);
 	usleep(data->t_eat * 1000);
 	}
-	pthread_mutex_lock(data->meal);
 	pthread_mutex_lock(data->finish);
 	philo->eaten_nb += 1;
 	philo->t_lasteat = get_time();
 	pthread_mutex_unlock(data->finish);
-	pthread_mutex_unlock(data->meal);
 }
 
 void	execute(void *arg)
@@ -133,16 +131,15 @@ void	execute(void *arg)
 
 	if (data->rip_flag == 1)
 	{
-	pthread_mutex_unlock(data->finish);
-	meal(arg);
-	pthread_mutex_unlock(&data->forks[philo->left_fork]);
-	pthread_mutex_unlock(&data->forks[philo->right_fork]);
-	if (philo->eaten_nb < data->nb_eats && data->rip_flag == 1)
-	{
-		print_action(philo, SLEEP);
-		usleep(data->t_slp * 1000);
-		print_action(philo, THINK);
-	}	
+		meal(arg);
+		pthread_mutex_unlock(&data->forks[philo->left_fork]);
+		pthread_mutex_unlock(&data->forks[philo->right_fork]);
+		if (philo->eaten_nb < data->nb_eats && data->rip_flag == 1)
+		{
+			print_action(philo, SLEEP);
+			usleep(data->t_slp * 1000);
+			print_action(philo, THINK);
+		}
 	}
 }
 
@@ -153,7 +150,6 @@ void	*action(void *arg)
 
 	philo = (t_philo*)arg;
 	data = philo->data;
-	pthread_mutex_lock(data->finish);
 	if  (data->nb_eats > 0)
 	{
 		while (philo->eaten_nb <= data->nb_eats
@@ -212,7 +208,7 @@ void	*inspect(void	*arg)
 				break ;
 		}
 	}
-	usleep(1000);
+	usleep(10);
 	return (NULL);
 }
 
@@ -227,7 +223,6 @@ void	philosophers(t_data *data)
 		pthread_create(&(data->philo[i].philo), NULL, action, &data->philo[i]); // Not sure if the use of data->philo->philo is correct!
 	}
 	pthread_create(&data->watcher, NULL, inspect, data); // Not sure if the use of data->philo->philo is correct!
-	//usleep(1000);
 	finisher(data);
 }
 
