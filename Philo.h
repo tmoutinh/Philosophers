@@ -6,7 +6,7 @@
 /*   By: tmoutinh <tmoutinh@student.42porto.com     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/16 00:46:42 by tmoutinh          #+#    #+#             */
-/*   Updated: 2023/08/27 00:34:02 by tmoutinh         ###   ########.fr       */
+/*   Updated: 2023/09/05 18:40:58 by tmoutinh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,13 +50,13 @@ typedef struct s_data
 	pthread_mutex_t 	*meal;
 	pthread_mutex_t		*write;
 	pthread_mutex_t		*finish;
+	pthread_mutex_t		*dead;
 }	t_data;
 
 
 long long get_time(void);
 long long	ft_atoi(const char *nptr);
 void	finisher(t_data *data);
-//int	inspect (void *arg);
 void	*inspect(void *arg);
 
 #endif

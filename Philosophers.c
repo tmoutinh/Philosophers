@@ -6,7 +6,7 @@
 /*   By: tmoutinh <tmoutinh@student.42porto.com     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/16 00:46:23 by tmoutinh          #+#    #+#             */
-/*   Updated: 2023/09/04 21:49:18 by tmoutinh         ###   ########.fr       */
+/*   Updated: 2023/09/05 20:10:14 by tmoutinh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,11 +47,13 @@ int	init_data(int argc, char **argv, t_data *data)
 	data->meal = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t));
 	data->write = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t));
 	data->finish = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t));
+	data->dead = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t));
 	if (!data->forks || !data->philo || !data->meal || !data->write)
 		return (-2);
 	pthread_mutex_init(data->meal, NULL);
 	pthread_mutex_init(data->write, NULL);
 	pthread_mutex_init(data->finish, NULL);
+	pthread_mutex_init(data->dead, NULL);
 	return (1);
 }
 void	philo_init(t_data *data)
@@ -108,12 +110,14 @@ void	meal(void *arg)
 		pthread_mutex_lock(&data->forks[philo->right_fork]);
 		pthread_mutex_lock(&data->forks[philo->left_fork]);
 	}
+	pthread_mutex_lock(data->dead);
 	if (data->rip_flag == 1)
 	{
-	print_action(arg, TAKE);
-	print_action(arg, TAKE);
-	print_action(arg, EAT);
-	usleep(data->t_eat * 1000);
+		pthread_mutex_unlock(data->dead);
+		print_action(arg, TAKE);
+		print_action(arg, TAKE);
+		print_action(arg, EAT);
+		usleep(data->t_eat * 1000);
 	}
 	pthread_mutex_lock(data->finish);
 	philo->eaten_nb += 1;
@@ -129,8 +133,10 @@ void	execute(void *arg)
 	philo = (t_philo*)arg;
 	data = philo->data;
 
+	pthread_mutex_lock(data->dead);
 	if (data->rip_flag == 1)
 	{
+		pthread_mutex_unlock(data->dead);
 		meal(arg);
 		pthread_mutex_unlock(&data->forks[philo->left_fork]);
 		pthread_mutex_unlock(&data->forks[philo->right_fork]);
@@ -158,8 +164,14 @@ void	*action(void *arg)
 	}
 	else
 	{
+		pthread_mutex_lock(data->dead);
 		while (data->rip_flag == 1)
+		{
+			pthread_mutex_unlock(data->dead);
 			execute(arg);
+			pthread_mutex_lock(data->dead);
+		}
+		pthread_mutex_unlock(data->dead);
 	}
 	return (NULL);
 }
@@ -172,7 +184,9 @@ int	dead_man(t_data *data, int *i)
 	if (get_time() - data->philo[*i].t_lasteat >= data->t_die)
 	{
 		printf("entered dead man\n");
+		pthread_mutex_lock(data->dead);
 		data->rip_flag = 0;
+		pthread_mutex_unlock(data->dead);
 		print_action(&data->philo[*i], DIE);
 		pthread_mutex_unlock(data->finish);
 		return (1);
@@ -219,7 +233,7 @@ void	philosophers(t_data *data)
 	i = -1;
 	philo_init(data);
 	while (++i < data->nb_philo)
-	{		
+	{
 		pthread_create(&(data->philo[i].philo), NULL, action, &data->philo[i]); // Not sure if the use of data->philo->philo is correct!
 	}
 	pthread_create(&data->watcher, NULL, inspect, data); // Not sure if the use of data->philo->philo is correct!
