@@ -6,7 +6,7 @@
 /*   By: tmoutinh <tmoutinh@student.42porto.com     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/16 00:46:23 by tmoutinh          #+#    #+#             */
-/*   Updated: 2023/09/05 20:10:14 by tmoutinh         ###   ########.fr       */
+/*   Updated: 2023/09/06 18:58:50 by tmoutinh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,7 +84,7 @@ void	print_action(t_philo *arg, char *status)
 {
 	t_data	*data;
 	t_philo	*philo;
-
+	
 	philo = (t_philo*)arg;
 	data = philo->data;
 	pthread_mutex_lock(data->write);
@@ -97,7 +97,7 @@ void	meal(void *arg)
 	t_data	*data;
 	t_philo	*philo;
 
-	philo = arg;
+	philo = (t_philo *)arg;
 	data = philo->data;
 	
 	if (philo->right_fork % 2 == 0)
@@ -113,12 +113,14 @@ void	meal(void *arg)
 	pthread_mutex_lock(data->dead);
 	if (data->rip_flag == 1)
 	{
-		pthread_mutex_unlock(data->dead);
 		print_action(arg, TAKE);
 		print_action(arg, TAKE);
 		print_action(arg, EAT);
 		usleep(data->t_eat * 1000);
+		pthread_mutex_unlock(data->dead);
 	}
+	else
+		pthread_mutex_unlock(data->dead);
 	pthread_mutex_lock(data->finish);
 	philo->eaten_nb += 1;
 	philo->t_lasteat = get_time();
@@ -140,8 +142,9 @@ void	execute(void *arg)
 		meal(arg);
 		pthread_mutex_unlock(&data->forks[philo->left_fork]);
 		pthread_mutex_unlock(&data->forks[philo->right_fork]);
-		if (philo->eaten_nb < data->nb_eats && data->rip_flag == 1)
+		if ((data->nb_eats > 0 && philo->eaten_nb <= data->nb_eats && data->rip_flag == 1) || data->rip_flag == 1)
 		{
+			//printf("philo %d entered sleep/thinking routine\n", philo->right_fork + 1);
 			print_action(philo, SLEEP);
 			usleep(data->t_slp * 1000);
 			print_action(philo, THINK);
@@ -156,23 +159,27 @@ void	*action(void *arg)
 
 	philo = (t_philo*)arg;
 	data = philo->data;
+	pthread_mutex_lock(data->dead);
 	if  (data->nb_eats > 0)
 	{
 		while (philo->eaten_nb <= data->nb_eats
 			&& data->rip_flag == 1)
-				execute(arg);
+		{
+			pthread_mutex_unlock(data->dead);
+			execute(arg);
+			pthread_mutex_lock(data->dead);
+		}
 	}
 	else
 	{
-		pthread_mutex_lock(data->dead);
 		while (data->rip_flag == 1)
 		{
 			pthread_mutex_unlock(data->dead);
 			execute(arg);
 			pthread_mutex_lock(data->dead);
 		}
-		pthread_mutex_unlock(data->dead);
 	}
+	pthread_mutex_unlock(data->dead);
 	return (NULL);
 }
 
@@ -183,11 +190,11 @@ int	dead_man(t_data *data, int *i)
 	pthread_mutex_lock(data->finish);
 	if (get_time() - data->philo[*i].t_lasteat >= data->t_die)
 	{
-		printf("entered dead man\n");
+		//printf("entered dead man\n");
 		pthread_mutex_lock(data->dead);
 		data->rip_flag = 0;
-		pthread_mutex_unlock(data->dead);
 		print_action(&data->philo[*i], DIE);
+		pthread_mutex_unlock(data->dead);
 		pthread_mutex_unlock(data->finish);
 		return (1);
 	}
@@ -222,7 +229,7 @@ void	*inspect(void	*arg)
 				break ;
 		}
 	}
-	usleep(10);
+	usleep(100);
 	return (NULL);
 }
 
