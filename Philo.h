@@ -6,7 +6,7 @@
 /*   By: tmoutinh <tmoutinh@student.42porto.com     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/16 00:46:42 by tmoutinh          #+#    #+#             */
-/*   Updated: 2023/09/05 18:40:58 by tmoutinh         ###   ########.fr       */
+/*   Updated: 2023/09/09 15:13:58 by tmoutinh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,8 +47,8 @@ typedef struct s_data
 	pthread_t			watcher;
 	t_philo				*philo;
 	pthread_mutex_t 	*forks;
-	pthread_mutex_t 	*meal;
 	pthread_mutex_t		*write;
+	pthread_mutex_t 	*meal;
 	pthread_mutex_t		*finish;
 	pthread_mutex_t		*dead;
 }	t_data;
@@ -58,5 +58,6 @@ long long get_time(void);
 long long	ft_atoi(const char *nptr);
 void	finisher(t_data *data);
 void	*inspect(void *arg);
+int	ft_strcmp(char *s1, char *s2);
 
 #endif
