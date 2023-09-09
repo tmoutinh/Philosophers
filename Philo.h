@@ -6,7 +6,7 @@
 /*   By: tmoutinh <tmoutinh@student.42porto.com     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/16 00:46:42 by tmoutinh          #+#    #+#             */
-/*   Updated: 2023/09/09 15:13:58 by tmoutinh         ###   ########.fr       */
+/*   Updated: 2023/09/09 19:50:53 by tmoutinh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@
 #define THINK "is thinking"
 #define SLEEP "is sleeping"
 #define	DIE	"died"
+#define	FULL	"All philo are full"
 
 typedef struct s_philo
 {

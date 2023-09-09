@@ -6,7 +6,7 @@
 /*   By: tmoutinh <tmoutinh@student.42porto.com     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/16 00:46:23 by tmoutinh          #+#    #+#             */
-/*   Updated: 2023/09/09 15:45:47 by tmoutinh         ###   ########.fr       */
+/*   Updated: 2023/09/09 19:57:01 by tmoutinh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,7 +96,7 @@ void	print_action(t_philo *arg, char *status)
 	else
 	{
 		pthread_mutex_lock(data->dead);
-		if ((data->nb_eats > 0 && philo->eaten_nb <= data->nb_eats
+		if ((data->nb_eats > 0 && philo->eaten_nb < data->nb_eats
 		&& data->rip_flag == 1) || data->rip_flag == 1)
 		{
 			pthread_mutex_unlock(data->dead);
@@ -145,12 +145,12 @@ void	execute(void *arg)
 	philo = (t_philo*)arg;
 	data = philo->data;
 
+	print_action(philo, THINK);
 	meal(arg);
 	pthread_mutex_unlock(&data->forks[philo->left_fork]);
 	pthread_mutex_unlock(&data->forks[philo->right_fork]);
 	print_action(philo, SLEEP);
 	usleep(data->t_slp * 1000);
-	print_action(philo, THINK);
 }
 
 void	*action(void *arg)
@@ -161,25 +161,25 @@ void	*action(void *arg)
 	philo = (t_philo*)arg;
 	data = philo->data;
 	pthread_mutex_lock(data->dead);
-	if  (data->nb_eats > 0)
-	{
-		while (philo->eaten_nb <= data->nb_eats
-			&& data->rip_flag == 1)
-		{
-			pthread_mutex_unlock(data->dead);
-			execute(arg);
-			pthread_mutex_lock(data->dead);
-		}
-	}
-	else
-	{
+	// if  (data->nb_eats > 0)
+	// {
+	// 	while (philo->eaten_nb < data->nb_eats
+	// 		&& data->rip_flag == 1)
+	// 	{
+	// 		pthread_mutex_unlock(data->dead);
+	// 		execute(arg);
+	// 		pthread_mutex_lock(data->dead);
+	// 	}
+	// }
+	// else
+	// {
 		while (data->rip_flag == 1)
 		{
 			pthread_mutex_unlock(data->dead);
 			execute(arg);
 			pthread_mutex_lock(data->dead);
 		}
-	}
+	//}
 	pthread_mutex_unlock(data->dead);
 	return (NULL);
 }
@@ -191,7 +191,6 @@ int	dead_man(t_data *data, int *i)
 	pthread_mutex_lock(data->finish);
 	if (get_time() - data->philo[*i].t_lasteat >= data->t_die)
 	{
-		//printf("entered dead man\n");
 		pthread_mutex_lock(data->dead);
 		data->rip_flag = 0;
 		print_action(&data->philo[*i], DIE);
@@ -204,31 +203,48 @@ int	dead_man(t_data *data, int *i)
 	return (0);
 }
 
+int	full_break(t_data *data, int i,int *j)
+{
+	t_philo *philo;
+
+	philo = &data->philo[i];
+	if (data->nb_eats > 0 && philo->eaten_nb == data->nb_eats)
+		*j += 1;
+	// else
+	// 	*j = 0;
+	//printf("i is %d and j is %d\n", i, *j);
+	if (*j == data->nb_philo - 1)
+	{
+		pthread_mutex_lock(data->dead);
+		data->rip_flag = 0;
+		return (0);
+	}
+	return (1);
+}
+
 void	*inspect(void	*arg)
 {
 	int	i;
+	int	j;
 	t_data	*data;
 	t_philo	*philo;
 
 	i = 0;
+	j = 0;
 	data = (t_data*)arg;
 	philo = &data->philo[i];
-	if  (data->nb_eats > 0)
+	while (data->rip_flag == 1)
 	{
-		while (philo->eaten_nb <= data->nb_eats
-			&& data->rip_flag == 1)
+		pthread_mutex_lock(data->finish);
+		if (full_break(data, i, &j) == 0)
 		{
-			if (dead_man(data, &i) == 1)
-				break ;
+			pthread_mutex_unlock(data->dead);
+			pthread_mutex_unlock(data->finish);
+			break ;
 		}
-	}
-	else
-	{
-		while (data->rip_flag == 1)
-		{
-			if (dead_man(data, &i) == 1)
-				break ;
-		}
+		pthread_mutex_unlock(data->finish);
+		if (dead_man(data, &i) == 1)
+			break ;
 	}
 	usleep(10);
 	return (NULL);
@@ -261,7 +277,7 @@ int	main(int argc, char **argv)
 	{
 		write(STDERR_FILENO, "Invalid argument introduction\n", 30);
 		return (-1);
-	}	
+	}
 	philosophers(&data);
 	return (0);
 }
