@@ -6,7 +6,7 @@
 /*   By: tmoutinh <tmoutinh@student.42porto.com     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/16 00:46:23 by tmoutinh          #+#    #+#             */
-/*   Updated: 2023/09/10 18:05:22 by tmoutinh         ###   ########.fr       */
+/*   Updated: 2023/09/10 18:10:02 by tmoutinh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,6 +95,15 @@ void	philo_init(t_data *data)
 		data->philo[i].t_lasteat = get_time();
 	}
 }
+
+void	sleeper(t_data *data)
+{
+	long long begin;
+
+	begin = get_time();
+	
+}
+
 void	print_action(t_philo *arg, char *status)
 {
 	t_data	*data;
