@@ -6,7 +6,7 @@
 /*   By: tmoutinh <tmoutinh@student.42porto.com     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/16 00:46:42 by tmoutinh          #+#    #+#             */
-/*   Updated: 2023/09/09 19:50:53 by tmoutinh         ###   ########.fr       */
+/*   Updated: 2023/09/10 14:42:57 by tmoutinh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,6 @@ typedef struct s_data
 	t_philo				*philo;
 	pthread_mutex_t 	*forks;
 	pthread_mutex_t		*write;
-	pthread_mutex_t 	*meal;
 	pthread_mutex_t		*finish;
 	pthread_mutex_t		*dead;
 }	t_data;
