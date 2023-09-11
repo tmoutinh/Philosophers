@@ -3,21 +3,21 @@
 /*                                                        :::      ::::::::   */
 /*   utils.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tmoutinh <tmoutinh@student.42porto.com     +#+  +:+       +#+        */
+/*   By: tmoutinh <tmoutinh@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/18 14:24:32 by tmoutinh          #+#    #+#             */
-/*   Updated: 2023/09/09 15:13:49 by tmoutinh         ###   ########.fr       */
+/*   Updated: 2023/09/10 23:59:39 by tmoutinh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Philo.h"
 
-long long get_time(void) 
+long long	get_time(void)
 {
-    struct timeval tv;
-	
-    gettimeofday(&tv, NULL);
-    return (long long)(tv.tv_sec) * 1000 + (long long)(tv.tv_usec) / 1000;
+	struct timeval	tv;
+
+	gettimeofday(&tv, NULL);
+	return ((long long)(tv.tv_sec)*1000 + (long long)(tv.tv_usec) / 1000);
 }
 
 int	ft_strcmp(char *s1, char *s2)
@@ -33,7 +33,7 @@ int	ft_strcmp(char *s1, char *s2)
 long long	ft_atoi(const char *nptr)
 {
 	long long	i;
-	int	neg;
+	int			neg;
 
 	i = 0;
 	neg = 1;
@@ -57,3 +57,23 @@ long long	ft_atoi(const char *nptr)
 	return (i * neg);
 }
 
+void	finisher(t_data *data)
+{
+	int	i;
+
+	i = -1;
+	while (++i < data->nb_philo)
+	{
+		pthread_join(data->philo[i].philo, NULL);
+		pthread_mutex_destroy(&data->forks[i]);
+	}
+	free(data->philo);
+	free(data->forks);
+	pthread_join(data->watcher, NULL);
+	pthread_mutex_destroy(data->write);
+	free(data->write);
+	pthread_mutex_destroy(data->dead);
+	free(data->dead);
+	pthread_mutex_destroy(data->finish);
+	free(data->finish);
+}
