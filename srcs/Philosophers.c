@@ -6,11 +6,11 @@
 /*   By: tmoutinh <tmoutinh@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/16 00:46:23 by tmoutinh          #+#    #+#             */
-/*   Updated: 2023/09/11 00:01:33 by tmoutinh         ###   ########.fr       */
+/*   Updated: 2023/09/11 13:50:21 by tmoutinh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Philo.h"
+#include "../includes/Philo.h"
 
 void	sleeper(t_data *data, long long sleep)
 {
@@ -27,12 +27,10 @@ void	sleeper(t_data *data, long long sleep)
 	pthread_mutex_unlock(data->dead);
 }
 
-void	print_action(t_philo *arg, char *status)
+void	print_action(t_philo *philo, char *status)
 {
 	t_data	*data;
-	t_philo	*philo;
 
-	philo = (t_philo *)arg;
 	data = philo->data;
 	if (ft_strcmp(status, DIE) == 0)
 	{

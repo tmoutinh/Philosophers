@@ -6,11 +6,11 @@
 /*   By: tmoutinh <tmoutinh@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/18 14:24:32 by tmoutinh          #+#    #+#             */
-/*   Updated: 2023/09/10 23:59:39 by tmoutinh         ###   ########.fr       */
+/*   Updated: 2023/09/11 13:25:05 by tmoutinh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Philo.h"
+#include "../includes/Philo.h"
 
 long long	get_time(void)
 {
@@ -63,10 +63,10 @@ void	finisher(t_data *data)
 
 	i = -1;
 	while (++i < data->nb_philo)
-	{
 		pthread_join(data->philo[i].philo, NULL);
+	i = -1;
+	while (++i < data->nb_philo)
 		pthread_mutex_destroy(&data->forks[i]);
-	}
 	free(data->philo);
 	free(data->forks);
 	pthread_join(data->watcher, NULL);

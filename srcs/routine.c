@@ -6,11 +6,11 @@
 /*   By: tmoutinh <tmoutinh@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/10 23:57:40 by tmoutinh          #+#    #+#             */
-/*   Updated: 2023/09/10 23:58:11 by tmoutinh         ###   ########.fr       */
+/*   Updated: 2023/09/11 13:44:35 by tmoutinh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Philo.h"
+#include "../includes/Philo.h"
 
 void	meal(void *arg)
 {
@@ -19,9 +19,9 @@ void	meal(void *arg)
 
 	philo = (t_philo *)arg;
 	data = philo->data;
-	if (philo->right_fork % 2 != 0)
+	if (philo->right_fork % 2 == 0)
 	{
-		usleep(50);
+		usleep(500);
 		pthread_mutex_lock(&data->forks[philo->left_fork]);
 		pthread_mutex_lock(&data->forks[philo->right_fork]);
 	}
@@ -37,7 +37,7 @@ void	meal(void *arg)
 	philo->eaten_nb += 1;
 	philo->t_lasteat = get_time();
 	pthread_mutex_unlock(data->finish);
-	sleeper(data, data->t_eat * 1000);
+	sleeper(data, data->t_eat);
 }
 
 void	execute(void *arg)
@@ -52,7 +52,7 @@ void	execute(void *arg)
 	pthread_mutex_unlock(&data->forks[philo->left_fork]);
 	pthread_mutex_unlock(&data->forks[philo->right_fork]);
 	print_action(philo, SLEEP);
-	sleeper(data, data->t_slp * 1000);
+	sleeper(data, data->t_slp);
 }
 
 void	*action(void *arg)

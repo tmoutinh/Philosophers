@@ -6,11 +6,11 @@
 /*   By: tmoutinh <tmoutinh@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/10 23:59:52 by tmoutinh          #+#    #+#             */
-/*   Updated: 2023/09/11 00:01:36 by tmoutinh         ###   ########.fr       */
+/*   Updated: 2023/09/11 12:40:43 by tmoutinh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Philo.h"
+#include "../includes/Philo.h"
 
 int	argument_validation(int argc, char **argv, t_data *data)
 {

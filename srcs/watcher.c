@@ -6,11 +6,11 @@
 /*   By: tmoutinh <tmoutinh@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/10 23:58:33 by tmoutinh          #+#    #+#             */
-/*   Updated: 2023/09/10 23:59:04 by tmoutinh         ###   ########.fr       */
+/*   Updated: 2023/09/11 12:41:12 by tmoutinh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Philo.h"
+#include "../includes/Philo.h"
 
 int	dead_man(t_data *data, int *i)
 {
