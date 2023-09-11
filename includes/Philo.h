@@ -6,7 +6,7 @@
 /*   By: tmoutinh <tmoutinh@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/16 00:46:42 by tmoutinh          #+#    #+#             */
-/*   Updated: 2023/09/11 12:20:43 by tmoutinh         ###   ########.fr       */
+/*   Updated: 2023/09/11 15:27:17 by tmoutinh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,7 +67,7 @@ void		sleeper(t_data *data, long long sleep);
 /*routine.c*/
 void		*action(void *arg);
 void		execute(void *arg);
-void		meal(void *arg);
+void		meal(t_philo *philo);
 /*utils.c*/
 void		finisher(t_data *data);
 long long	ft_atoi(const char *nptr);
