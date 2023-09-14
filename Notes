@@ -1,2 +1,0 @@
--> The program seems to be running the main problem is that only a thread is actually eating, which I think as to do with the mutexes.
-    Some mutex might be bloxking the other threads from executing, need to find which one it is.
