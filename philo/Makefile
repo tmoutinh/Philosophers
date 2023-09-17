@@ -3,17 +3,17 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: tmoutinh <tmoutinh@student.42.fr>          +#+  +:+       +#+         #
+#    By: tmoutinh <tmoutinh@student.42porto.com     +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/08/16 01:39:55 by tmoutinh          #+#    #+#              #
-#    Updated: 2023/09/11 13:16:08 by tmoutinh         ###   ########.fr        #
+#    Updated: 2023/09/17 18:22:09 by tmoutinh         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = philo
 SRCS = srcs/Philosophers.c srcs/routine.c srcs/utils.c srcs/watcher.c srcs/initializer.c
 
-FLAGS = -Wall -Werror -Wextra -g -fsanitize=thread
+FLAGS = -Wall -Werror -Wextra -pthread -g
 
 CC = cc
 

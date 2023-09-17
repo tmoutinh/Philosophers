@@ -66,7 +66,7 @@ int			single_philo(t_data *data);
 void		sleeper(t_data *data, long long sleep);
 /*routine.c*/
 void		*action(void *arg);
-void		execute(void *arg);
+void		execute(t_data *data, t_philo *philo);
 void		meal(t_philo *philo);
 /*utils.c*/
 void		finisher(t_data *data);

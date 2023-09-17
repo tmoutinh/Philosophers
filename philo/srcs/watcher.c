@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   watcher.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tmoutinh <tmoutinh@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tmoutinh <tmoutinh@student.42porto.com     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/10 23:58:33 by tmoutinh          #+#    #+#             */
-/*   Updated: 2023/09/11 12:41:12 by tmoutinh         ###   ########.fr       */
+/*   Updated: 2023/09/17 17:32:45 by tmoutinh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,11 +19,11 @@ int	dead_man(t_data *data, int *i)
 	pthread_mutex_lock(data->finish);
 	if (get_time() - data->philo[*i].t_lasteat >= data->t_die)
 	{
+		pthread_mutex_unlock(data->finish);
 		pthread_mutex_lock(data->dead);
 		data->rip_flag = 0;
 		print_action(&data->philo[*i], DIE);
 		pthread_mutex_unlock(data->dead);
-		pthread_mutex_unlock(data->finish);
 		return (1);
 	}
 	*i += 1;
@@ -58,18 +58,18 @@ void	*inspect(void	*arg)
 	i = 0;
 	j = 0;
 	data = (t_data *)arg;
-	while (data->rip_flag == 1)
+	while (1)
 	{
 		pthread_mutex_lock(data->finish);
 		if (full_break(data, i, &j) == 0)
 		{
 			pthread_mutex_unlock(data->dead);
 			pthread_mutex_unlock(data->finish);
-			break ;
+			return (NULL);
 		}
 		pthread_mutex_unlock(data->finish);
 		if (dead_man(data, &i) == 1)
-			break ;
+			return (NULL);
 	}
 	usleep(10);
 	return (NULL);

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   routine.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tmoutinh <tmoutinh@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tmoutinh <tmoutinh@student.42porto.com     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/10 23:57:40 by tmoutinh          #+#    #+#             */
-/*   Updated: 2023/09/11 15:27:57 by tmoutinh         ###   ########.fr       */
+/*   Updated: 2023/09/17 18:29:27 by tmoutinh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,12 +19,13 @@ void	meal(t_philo *philo)
 	data = philo->data;
 	if (philo->right_fork % 2 == 0)
 	{
-		usleep(500);
 		pthread_mutex_lock(&data->forks[philo->left_fork]);
 		pthread_mutex_lock(&data->forks[philo->right_fork]);
 	}
 	else
 	{
+		if (data->nb_philo % 2 != 0 && data->t_eat - data->t_slp >= 0)
+			sleeper(data, data->t_eat - data->t_slp + 10);
 		pthread_mutex_lock(&data->forks[philo->right_fork]);
 		pthread_mutex_lock(&data->forks[philo->left_fork]);
 	}
@@ -40,19 +41,6 @@ void	meal(t_philo *philo)
 	pthread_mutex_unlock(&data->forks[philo->right_fork]);
 }
 
-void	execute(void *arg)
-{
-	t_data	*data;
-	t_philo	*philo;
-
-	philo = (t_philo *)arg;
-	data = philo->data;
-	print_action(philo, THINK);
-	meal(arg);
-	print_action(philo, SLEEP);
-	sleeper(data, data->t_slp);
-}
-
 void	*action(void *arg)
 {
 	t_data	*data;
@@ -60,13 +48,22 @@ void	*action(void *arg)
 
 	philo = (t_philo *)arg;
 	data = philo->data;
-	pthread_mutex_lock(data->dead);
-	while (data->rip_flag == 1)
+	print_action(philo, THINK);
+	if (philo->right_fork % 2 != 0)
+		usleep(data->t_eat * 1000);
+	while (1)
 	{
-		pthread_mutex_unlock(data->dead);
-		execute(arg);
 		pthread_mutex_lock(data->dead);
+		if (data->rip_flag == 0)
+		{
+			pthread_mutex_unlock(data->dead);
+			return (NULL);
+		}
+		pthread_mutex_unlock(data->dead);
+		meal(philo);
+		print_action(philo, SLEEP);
+		sleeper(data, data->t_slp);
+		print_action(philo, THINK);
 	}
-	pthread_mutex_unlock(data->dead);
 	return (NULL);
 }
