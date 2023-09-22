@@ -6,7 +6,7 @@
 /*   By: tmoutinh <tmoutinh@student.42porto.com     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/10 23:58:33 by tmoutinh          #+#    #+#             */
-/*   Updated: 2023/09/17 17:32:45 by tmoutinh         ###   ########.fr       */
+/*   Updated: 2023/09/22 17:03:35 by tmoutinh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ int	dead_man(t_data *data, int *i)
 		pthread_mutex_unlock(data->finish);
 		pthread_mutex_lock(data->dead);
 		data->rip_flag = 0;
-		print_action(&data->philo[*i], DIE);
+		print_action(&data->philo[*i], DIE, RED);
 		pthread_mutex_unlock(data->dead);
 		return (1);
 	}

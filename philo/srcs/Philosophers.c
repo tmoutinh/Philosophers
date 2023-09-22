@@ -6,7 +6,7 @@
 /*   By: tmoutinh <tmoutinh@student.42porto.com     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/16 00:46:23 by tmoutinh          #+#    #+#             */
-/*   Updated: 2023/09/17 17:47:44 by tmoutinh         ###   ########.fr       */
+/*   Updated: 2023/09/22 17:07:42 by tmoutinh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ void	sleeper(t_data *data, long long sleep)
 	pthread_mutex_unlock(data->dead);
 }
 
-void	print_action(t_philo *philo, char *status)
+void	print_action(t_philo *philo, char *status, char *color)
 {
 	t_data	*data;
 
@@ -35,7 +35,7 @@ void	print_action(t_philo *philo, char *status)
 	if (ft_strcmp(status, DIE) == 0)
 	{
 		pthread_mutex_lock(data->write);
-		printf("%lld %d %s\n", get_time() - data->start_time,
+		printf("%s%lld %d %s"RESET"\n", color, get_time() - data->start_time,
 			philo->right_fork + 1, status);
 		pthread_mutex_unlock(data->write);
 	}
@@ -47,7 +47,7 @@ void	print_action(t_philo *philo, char *status)
 		{
 			pthread_mutex_unlock(data->dead);
 			pthread_mutex_lock(data->write);
-			printf("%lld %d %s\n", get_time() - data->start_time,
+			printf("%s%lld %d %s"RESET"\n", color, get_time() - data->start_time,
 				philo->right_fork + 1, status);
 			pthread_mutex_unlock(data->write);
 		}
@@ -61,21 +61,26 @@ void	philosophers(t_data *data)
 	int	i;
 
 	i = -1;
-	if (mutex_initializer(data) == -2)
+	if (mutex_initializer(data) < 0)
 		return ;
 	philo_init(data);
 	while (++i < data->nb_philo)
-		pthread_create(&(data->philo[i].philo), NULL, action, &data->philo[i]);
-	pthread_create(&data->watcher, NULL, inspect, data);
+	{
+		if (pthread_create(&(data->philo[i].philo), NULL,
+				action, &data->philo[i]))
+			exit_error (data, -5);
+	}
+	if (pthread_create(&data->watcher, NULL, inspect, data))
+		finisher(data);
 	finisher(data);
 }
 
 int	single_philo(t_data *data)
 {
-	printf("%lld Philosopher 1 has taken a fork\n",
+	printf("%lld 1 has taken a fork\n",
 		get_time() - data->start_time);
 	usleep(data->t_die * 1000);
-	printf("%lld Philosopher 1 died\n", data->t_die);
+	printf("%lld 1 died\n", data->t_die);
 	return (1);
 }
 

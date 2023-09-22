@@ -6,7 +6,7 @@
 /*   By: tmoutinh <tmoutinh@student.42porto.com     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/10 23:57:40 by tmoutinh          #+#    #+#             */
-/*   Updated: 2023/09/17 18:29:27 by tmoutinh         ###   ########.fr       */
+/*   Updated: 2023/09/22 17:08:29 by tmoutinh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,9 +29,9 @@ void	meal(t_philo *philo)
 		pthread_mutex_lock(&data->forks[philo->right_fork]);
 		pthread_mutex_lock(&data->forks[philo->left_fork]);
 	}
-	print_action(philo, TAKE);
-	print_action(philo, TAKE);
-	print_action(philo, EAT);
+	print_action(philo, TAKE, WHITE);
+	print_action(philo, TAKE, WHITE);
+	print_action(philo, EAT, YELLOW);
 	pthread_mutex_lock(data->finish);
 	philo->eaten_nb += 1;
 	philo->t_lasteat = get_time();
@@ -48,7 +48,7 @@ void	*action(void *arg)
 
 	philo = (t_philo *)arg;
 	data = philo->data;
-	print_action(philo, THINK);
+	print_action(philo, THINK, PURPLE);
 	if (philo->right_fork % 2 != 0)
 		usleep(data->t_eat * 1000);
 	while (1)
@@ -61,9 +61,9 @@ void	*action(void *arg)
 		}
 		pthread_mutex_unlock(data->dead);
 		meal(philo);
-		print_action(philo, SLEEP);
+		print_action(philo, SLEEP, BLUE);
 		sleeper(data, data->t_slp);
-		print_action(philo, THINK);
+		print_action(philo, THINK, PURPLE);
 	}
 	return (NULL);
 }

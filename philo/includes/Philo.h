@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Philo.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tmoutinh <tmoutinh@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tmoutinh <tmoutinh@student.42porto.com     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/16 00:46:42 by tmoutinh          #+#    #+#             */
-/*   Updated: 2023/09/11 15:27:17 by tmoutinh         ###   ########.fr       */
+/*   Updated: 2023/09/22 17:08:19 by tmoutinh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,12 +19,20 @@
 # include <pthread.h>
 # include <sys/time.h>
 
-# define EAT "is eating"
+# define RED "\x1b[31m"
+# define GREEN "\x1b[32m"
+# define YELLOW "\x1b[33m"
+# define BLUE "\x1b[34m"
+# define PURPLE "\x1b[35m"
+# define WHITE "\x1b[1m"
+# define RESET "\x1b[0m"
+
+# define EAT	"is eating"
 # define DIE	"died"
 # define FULL	"All philo are full"
-# define SLEEP "is sleeping"
-# define TAKE "has taken a fork"
-# define THINK "is thinking"
+# define SLEEP	"is sleeping"
+# define TAKE	"has taken a fork"
+# define THINK	"is thinking"
 
 typedef struct s_philo
 {
@@ -56,17 +64,19 @@ typedef struct s_data
 /*initializer.c*/
 int			argument_validation(int argc, char **argv, t_data *data);
 int			init_data(int argc, char **argv, t_data *data);
+int			mutex_destroy(t_data *data, int error);
 int			mutex_initializer(t_data *data);
 void		philo_init(t_data *data);
 /*Philosophers*/
 int			main(int argc, char **argv);
 void		philosophers(t_data *data);
-void		print_action(t_philo *arg, char *status);
+void		print_action(t_philo *arg, char *status, char *color);
 int			single_philo(t_data *data);
 void		sleeper(t_data *data, long long sleep);
 /*routine.c*/
 void		*action(void *arg);
 void		execute(t_data *data, t_philo *philo);
+int			exit_error(t_data *data, int error);
 void		meal(t_philo *philo);
 /*utils.c*/
 void		finisher(t_data *data);

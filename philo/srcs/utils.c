@@ -6,7 +6,7 @@
 /*   By: tmoutinh <tmoutinh@student.42porto.com     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/18 14:24:32 by tmoutinh          #+#    #+#             */
-/*   Updated: 2023/09/17 18:00:24 by tmoutinh         ###   ########.fr       */
+/*   Updated: 2023/09/22 16:28:37 by tmoutinh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,4 +76,20 @@ void	finisher(t_data *data)
 	free(data->dead);
 	pthread_mutex_destroy(data->finish);
 	free(data->finish);
+}
+
+int	exit_error(t_data *data, int error)
+{
+	if (error >= -5)
+		free (data->philo);
+	if (error >= -4)
+		free (data->forks);
+	if (error >= -3)
+		free (data->dead);
+	if (error >= -2)
+		free (data->finish);
+	if (error >= -1)
+		free (data->write);
+	printf("Error: error creating mutex %d\n", error);
+	return (error);
 }
