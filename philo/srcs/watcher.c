@@ -6,7 +6,7 @@
 /*   By: tmoutinh <tmoutinh@student.42porto.com     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/10 23:58:33 by tmoutinh          #+#    #+#             */
-/*   Updated: 2023/09/22 17:03:35 by tmoutinh         ###   ########.fr       */
+/*   Updated: 2023/09/22 20:43:08 by tmoutinh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,6 @@
 
 int	dead_man(t_data *data, int *i)
 {
-	if (*i == data->nb_philo)
-		*i = 0;
 	pthread_mutex_lock(data->finish);
 	if (get_time() - data->philo[*i].t_lasteat >= data->t_die)
 	{
@@ -31,11 +29,13 @@ int	dead_man(t_data *data, int *i)
 	return (0);
 }
 
-int	full_break(t_data *data, int i, int *j)
+int	full_break(t_data *data, int *i, int *j)
 {
 	t_philo	*philo;
 
-	philo = &data->philo[i];
+	if (*i == data->nb_philo)
+		*i = 0;
+	philo = &data->philo[*i];
 	if (data->nb_eats > 0 && philo->eaten_nb == data->nb_eats)
 		*j += 1;
 	else if (data->nb_eats > 0 && philo->eaten_nb < data->nb_eats)
@@ -61,7 +61,7 @@ void	*inspect(void	*arg)
 	while (1)
 	{
 		pthread_mutex_lock(data->finish);
-		if (full_break(data, i, &j) == 0)
+		if (full_break(data, &i, &j) == 0)
 		{
 			pthread_mutex_unlock(data->dead);
 			pthread_mutex_unlock(data->finish);

@@ -6,7 +6,7 @@
 /*   By: tmoutinh <tmoutinh@student.42porto.com     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/16 00:46:42 by tmoutinh          #+#    #+#             */
-/*   Updated: 2023/09/22 17:08:19 by tmoutinh         ###   ########.fr       */
+/*   Updated: 2023/09/22 20:42:55 by tmoutinh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,7 +85,7 @@ int			ft_strcmp(char *s1, char *s2);
 long long	get_time(void);
 /*watcher.c*/
 int			dead_man(t_data *data, int *i);
-int			full_break(t_data *data, int i, int *j);
+int			full_break(t_data *data, int *i, int *j);
 void		*inspect(void	*arg);
 
 #endif
